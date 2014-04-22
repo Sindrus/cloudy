@@ -6,8 +6,9 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'cloudy.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
     url( r'^$', lambda response: HttpResponse( "Hello l" ) ),
-    # url(r'^admin/', include(admin.site.urls)),
+    url( r'^cloud/slave/graphs$', 'graph.views.graph_list' ),
+    url( r'^cloud/slave/graphs/(?P<pk>[0-1]+)$', 'graph.views.graph_detail' ),
+    url( r'^cloud/slave/new$', 'graph.views.new' ),
+    url( r'^cloud/slave/save$', 'graph.views.save' ),
 )
