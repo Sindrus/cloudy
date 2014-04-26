@@ -73,15 +73,38 @@ def new( request ):
 def save( request ):
     b = BytesIO(request.body)
     p = JSONParser().parse(b)
+    is_list = isinstance( p, list )
     try:
-        g = Graph.objects.get( graph_id=p[ 'graph_id' ] )
-        for t in Taboo.objects.filter( graph=g ):
-            t.delete() 
+        if is_list:
+            for l in p:
+                g = Graph.objects.get( graph_id=l[ 'graph_id' ] )
+                if g.last_updated > l[ 'last_updated' ]:
+                    continue
+                for t in Taboo.objects.filter( graph=g ):
+                    t.delete() 
+        else:
+            g = Graph.objects.get( graph_id=p[ 'graph_id' ] )
+            if g.last_uptdated < l[ 'last_updated' ]:
+                for t in Taboo.objects.filter( graph=g ):
+                    t.delete() 
     except:
         pass
-    serializer = GraphSerializer( data=p )
+    serializer = GraphSerializer( data=p, many=is_list )
     if serializer.is_valid():
         serializer.save()
     else:
         print serializer.errors
     return HttpResponse( "lol\n" )
+
+import httplib
+@csrf_exempt
+def solution( request ):
+    bank_key = helper_util.get_bank_key( 'dev' )
+    if bank_key is None:
+        return HttpResponse( "404" )
+    conn = httplib.HTTPSConnection( helper_util.get_bank_connection() )
+    headers = { "Authorization":"Bearer %s"%bank_key }
+    conn.request( 'GET','/vault/1.0.0', headers=headers )
+    resp = conn.getresponse()
+    print resp.read()
+    return HttpResponse( "heh" )
