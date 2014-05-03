@@ -9,6 +9,10 @@ size = 100
 api_dict = {
     "F237E8FB2657FFFE5878AC972CA67":"dev",
 }
+# Keys for master system reverse lookup
+get_master_api_key = {
+    "dev":"F237E8FB2657FFFE5878AC972CA67",
+}
 
 # Bank (host, port)
 bank_host = [

@@ -1,11 +1,13 @@
 #!/usr/bin/python
 import os
+import sys
 import httplib
 import json
 import time
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cloudy.settings")
 
 from graph.models import Graph
+from masters.models import Master
 from rest_framework.parsers import JSONParser
 from rest_framework.compat import BytesIO
 import helper_util
@@ -46,6 +48,14 @@ def send_to_validation():
         g.coin_id = p[ 'coinId' ]
         g.save()
 
+def master_sync():
+    headers = { "api_key": helper_util.get_master_api_key[ "dev" ] }
+    for m in Master.objects.all():
+        print headers
+        path = "/cloud/master/masters"
+        conn = httplib.HTTPConnection( "localhost", port=m.port )
+        print conn.request( 'GET', path, headers=headers )
+
 def send( method, path, payload=None ):
     bank_key = helper_util.get_bank_key( 'dev' )
     if bank_key is None:
@@ -64,5 +74,18 @@ def send( method, path, payload=None ):
     conn.close()
     return p
 
-check_coins_to_validation()
-send_to_validation()
+def main():
+        if sys.argv[ 1 ] == 'submit':
+            check_coins_to_validation()
+            send_to_validation()
+        elif sys.argv[ 1 ] == 'sync':
+            master_sync()
+        elif sys.argv[ 1 ] == 'all':
+            check_coins_to_validation()
+            send_to_validation()
+            master_sync()
+        else:
+            print "error"
+        return
+
+main()

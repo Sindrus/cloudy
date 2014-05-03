@@ -52,7 +52,7 @@ def new( request ):
         return HttpResponse( status=404 )
     if not helper_util.authorized_api_key( request.GET.get( 'api_key', '' ) ):
         return HttpResponse( status=404 )
-    timelimit = timezone.now() + timedelta( seconds=-1 )
+    timelimit = timezone.now() + timedelta( minutes=-10 )
     g = Graph.objects.filter( last_updated__lt=timelimit ).order_by( 'last_updated' )
     if( len( g )>0 ):
         g = g[ 0 ]
@@ -96,15 +96,15 @@ def save( request ):
         print serializer.errors
     return HttpResponse( "lol\n" )
 
-import httplib
-@csrf_exempt
-def solution( request ):
-    bank_key = helper_util.get_bank_key( 'dev' )
-    if bank_key is None:
-        return HttpResponse( "404" )
-    conn = httplib.HTTPSConnection( helper_util.get_bank_connection() )
-    headers = { "Authorization":"Bearer %s"%bank_key }
-    conn.request( 'GET','/vault/1.0.0', headers=headers )
-    resp = conn.getresponse()
-    print resp.read()
-    return HttpResponse( "heh" )
+#import httplib
+#@csrf_exempt
+#def solution( request ):
+#    bank_key = helper_util.get_bank_key( 'dev' )
+#    if bank_key is None:
+#        return HttpResponse( "404" )
+#    conn = httplib.HTTPSConnection( helper_util.get_bank_connection() )
+#    headers = { "Authorization":"Bearer %s"%bank_key }
+#    conn.request( 'GET','/vault/1.0.0', headers=headers )
+#    resp = conn.getresponse()
+#    print resp.read()
+#    return HttpResponse( "heh" )
