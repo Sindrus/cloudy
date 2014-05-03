@@ -49,9 +49,9 @@ def graph_detail( request, pk ):
 @csrf_exempt
 def new( request ):
     if not request.method == 'GET':
-        return HttpResponse( status=404 )
+        return HttpResponse( status=401 )
     if not helper_util.authorized_api_key( request.GET.get( 'api_key', '' ) ):
-        return HttpResponse( status=404 )
+        return HttpResponse( status=401 )
     timelimit = timezone.now() + timedelta( minutes=-10 )
     g = Graph.objects.filter( last_updated__lt=timelimit ).order_by( 'last_updated' )
     if( len( g )>0 ):

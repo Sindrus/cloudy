@@ -3,6 +3,9 @@ from datetime import timedelta
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from rest_framework.renderers import JSONRenderer
+from rest_framework.parsers import JSONParser
+from rest_framework.compat import BytesIO
+from rest_framework.exceptions import ParseError
 from django.http import HttpResponse
 from masters.models import Master
 from masters.serializers import MasterSerializer
@@ -31,8 +34,12 @@ def get_masters( request ):
 @csrf_exempt
 def graph_sync( request ):
     b = BytesIO( request.body )
-    p = JSONParser().parse( b )
+    try:
+        p = JSONParser().parse( b )
+    except ParseError:
+        return HttpResponse( "Illegal datainput: %s"%b )
 
+    return HttpResponse( p )
     is_list = isinstance( p, list )
     try:
         if is_list:
