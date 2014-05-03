@@ -27,3 +27,37 @@ def get_masters( request ):
     serialized = MasterSerializer( return_list, many=True )
     print "returning"
     return JSONResponse( serialized.data )
+
+@csrf_exempt
+def graph_sync( request ):
+    b = BytesIO( request.body )
+    p = JSONParser().parse( b )
+
+    is_list = isinstance( p, list )
+    try:
+        if is_list:
+            for l in p:
+                g = Graph.objects.get( graph_id=l[ 'graph_id' ] )
+                if g.last_updated > l[ 'last_updated' ]:
+                    continue
+                g.is_synced = False
+                g.save()
+                for t in Taboo.objects.filter( graph=g ):
+                    t.delete() 
+        else:
+            g = Graph.objects.get( graph_id=p[ 'graph_id' ] )
+            if g.last_uptdated < l[ 'last_updated' ]:
+                for t in Taboo.objects.filter( graph=g ):
+                    t.delete() 
+            g.is_synced = False
+            g.save()
+    except:
+        print "An error has occurded in masters.views.graph_sync"
+        pass
+    serializer = MasterGraphSerializer( data=p, many=is_list )
+    if serializer.is_valid():
+        serializer.save()
+    else:
+        print serializer.errors
+    return HttpResponse( "saved\n" )
+

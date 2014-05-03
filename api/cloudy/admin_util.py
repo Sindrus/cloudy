@@ -7,9 +7,11 @@ import time
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cloudy.settings")
 
 from graph.models import Graph
+from graph.serializers import MasterGraphSerializer
 from masters.models import Master
 from rest_framework.parsers import JSONParser
 from rest_framework.compat import BytesIO
+from rest_framework.exceptions import ParseError
 import helper_util
 
 def check_coins_to_validation():
@@ -47,10 +49,11 @@ def send_to_validation():
         g.coin_status = p[ 'status' ]
         g.coin_id = p[ 'coinId' ]
         g.save()
-from rest_framework.exceptions import ParseError
+
 def master_sync():
     h = "api_key="+helper_util.get_master_api_key[ "dev" ]
     for m in Master.objects.all():
+        continue
         path = "/cloud/master/masters?%s"%h
         conn = httplib.HTTPConnection( m.url, port=m.port )
         conn.request( 'GET', path )
@@ -66,7 +69,20 @@ def master_sync():
                                  port=r["port"],
                                  last_seen=r["last_seen"] )
                 master.save()
+        conn.close()
 
+    first_sync_list = Graph.objects.all()
+    sync_list = Graph.objects.filter( is_synced = False )
+    for m in Master.objects.all():
+        if m.first_sync:
+            serializer = MasterGraphSerializer( first_sync_list, many=True )
+        else:
+            serializer = MasterGraphSerializer( sync_list, many=True )
+        print serializer
+        conn = httplib.HTTPConnection( m.url, port=m.port )
+        conn.request( 'POST', '/cloud/master/graph_sync' )
+        conn.close()
+        
 
 def send( method, path, payload=None ):
     bank_key = helper_util.get_bank_key( 'dev' )

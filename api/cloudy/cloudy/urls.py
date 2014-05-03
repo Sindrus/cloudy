@@ -9,4 +9,5 @@ urlpatterns = patterns('',
     url( r'^cloud/slave/save$', 'graph.views.save' ),
     url( r'^cloud/slave/solution$', 'graph.views.solution' ),
     url( r'^cloud/master/masters$', 'masters.views.get_masters' ),
+    url( r'^cloud/master/graph_sync$', 'masters.views.graph_sync' ),
 )
