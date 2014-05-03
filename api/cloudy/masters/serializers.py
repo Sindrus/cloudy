@@ -5,4 +5,4 @@ from masters.models import Master
 class MasterSerializer( serializers.ModelSerializer ):
     class Meta:
         model = Master
-        fields = ('url',)
+        fields = ('url','port', 'last_seen')

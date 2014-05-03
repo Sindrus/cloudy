@@ -47,14 +47,26 @@ def send_to_validation():
         g.coin_status = p[ 'status' ]
         g.coin_id = p[ 'coinId' ]
         g.save()
-
+from rest_framework.exceptions import ParseError
 def master_sync():
-    headers = { "api_key": helper_util.get_master_api_key[ "dev" ] }
+    h = "api_key="+helper_util.get_master_api_key[ "dev" ]
     for m in Master.objects.all():
-        print headers
-        path = "/cloud/master/masters"
-        conn = httplib.HTTPConnection( "localhost", port=m.port )
-        print conn.request( 'GET', path, headers=headers )
+        path = "/cloud/master/masters?%s"%h
+        conn = httplib.HTTPConnection( m.url, port=m.port )
+        conn.request( 'GET', path )
+        b = BytesIO( conn.getresponse().read() )
+        try:
+            resp = JSONParser().parse( b )
+        except ParseError:
+            print "parse error"
+            continue
+        for r in resp:
+            if Master.objects.filter(url=r["url"]).count() < 1:
+                master = Master( url=r["url"],
+                                 port=r["port"],
+                                 last_seen=r["last_seen"] )
+                master.save()
+
 
 def send( method, path, payload=None ):
     bank_key = helper_util.get_bank_key( 'dev' )

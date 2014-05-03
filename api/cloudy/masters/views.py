@@ -18,9 +18,12 @@ class JSONResponse( HttpResponse ):
 # Create your views here.
 @csrf_exempt
 def get_masters( request ):
+    print request.GET
+    print "api_key",request.GET.get( 'api_key', '' )
     if not helper_util.authorized_api_key( request.GET.get( 'api_key', '' ) ):
         return HttpResponse( status=404 )
     timelimit = timezone.now() + timedelta( hours=-5 )
-    return_list = Master.objects.filter( last_seen__lt=timelimit )
+    return_list = Master.objects.filter( last_seen__gt=timelimit )
     serialized = MasterSerializer( return_list, many=True )
+    print "returning"
     return JSONResponse( serialized.data )
