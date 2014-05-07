@@ -31,12 +31,12 @@ def send_to_validation():
             continue
 
 # Not sure how to sync the status of how many coins are currently
-# to validation. As two masters are planned, this will make sure
+# to validation. As one master is planned, this will make sure
 # at most 10 coins are to validation. It may however do the actual
 # maximum number of coins being validated be less than 10.
 # Better safe than sorry.
 # TODO: Find a way to know the global number of coins to validation.
-        if( len( Graph.objects.filter( is_to_validation=True ) ) >= 5 ):
+        if( len( Graph.objects.filter( is_to_validation=True ) ) >= 10 ):
             return
 
         jsonPayload = {
