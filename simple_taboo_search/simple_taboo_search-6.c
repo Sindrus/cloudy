@@ -166,7 +166,7 @@ main(int argc,char *argv[])
 	void *taboo_list;
 
 	double temprature_max = 1.0;
-	double dt = 0.0000001;
+	double dt = 0.00000001;
 	double temperature = temprature_max;
 
 	/*
@@ -358,20 +358,23 @@ main(int argc,char *argv[])
 
 			count = CliqueCount(g, gsize);
 
+			printf("count is %d\n", count);
+			printf("best count is %d\n", best_count);
+
 			int best_neighbour = g[best_i*gsize+best_j];
 
-			double q = ((double)best_count - (double)count) / (double)count;
+			double q = (double)count - (double)best_count;
 			double p = min(1.0, exp((double)-q / (double)temperature));
 
 			double randomNumber = (double)(rand() % 10) / 10;
 
-			// printf("q is %f\n", q);
-			// printf("p is %f\n", p);
+			 printf("q is %f\n", q);
+			 printf("p is %f\n", p);
 			// printf("minus q is %f\n", -q);
 			// printf("temp is %f\n", temperature);
-			// printf("random number is %f\n", randomNumber);
+			 printf("random number is %f\n", randomNumber);
 
-			if (randomNumber < p)
+			if ((randomNumber > p) && !FIFOFindEdgeCount(taboo_list,i,j,count))
 			{
 				g[best_i*gsize+best_j] = 1 - g[best_i*gsize+best_j];
 				printf("exploiting better results\n");
@@ -384,23 +387,27 @@ main(int argc,char *argv[])
 			}
 			else
 			{
-				printf("selecting random neighbour\n");
+				if (!FIFOFindEdgeCount(taboo_list,i,j,count))
+				{
+					printf("selecting random neighbour\n");
 
-				int rand1 = rand() % 60;
-				int rand2 = rand() % 60;
+					int rand1 = rand() % gsize;
+					int rand2 = rand() % gsize;
 
-				printf("%d\n", rand1);
-				printf("%d\n", rand2);
+					printf("%d\n", rand1);
+					printf("%d\n", rand2);
 
-				g[rand1*gsize+rand2] = 1 - g[rand1*gsize+rand2];
+					g[rand1*gsize+rand2] = 1 - g[rand1*gsize+rand2];
 
-				count = CliqueCount(g, gsize);
+					//count = CliqueCount(g, gsize);
 
-				best_count = count;
-				best_i = rand1;
-				best_j = rand2;
+					best_count = count;
+					best_i = rand1;
+					best_j = rand2;
 
-				FIFOInsertEdgeCount(taboo_list,best_i,best_j,count);
+					FIFOInsertEdgeCount(taboo_list,best_i,best_j,count);
+				}
+				
 				
 			}
 
