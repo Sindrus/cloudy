@@ -10,6 +10,9 @@ from django.http import HttpResponse
 from masters.models import Master
 from masters.serializers import MasterSerializer
 
+from graph.models import Graph
+from graph.serializers import MasterGraphSerializer
+
 import helper_util
 
 class JSONResponse( HttpResponse ):
@@ -39,32 +42,48 @@ def graph_sync( request ):
     except ParseError:
         return HttpResponse( "Illegal datainput: %s"%b )
 
-    return HttpResponse( p )
+    ret_str = ""
+
+#    for g in Graph.objects.all():
+#        ret_str = ret_str+str(g)+ ", "
+#    ret_str = ret_str+"\n"
+
     is_list = isinstance( p, list )
     try:
         if is_list:
             for l in p:
-                g = Graph.objects.get( graph_id=l[ 'graph_id' ] )
-                if g.last_updated > l[ 'last_updated' ]:
-                    continue
+              try:
+                if Graph.objects.filter( graph_id=l[ 'graph_id' ] ).exists():
+                    g = Graph.objects.get( graph_id=l[ 'graph_id' ] )
+                    if g.last_updated > l[ 'last_updated' ]:
+                        continue
+                    g.is_synced = False
+                    g.save()
+                    for t in Taboo.objects.filter( graph=g ):
+                        t.delete() 
+              except Graph.DoesNotExist:
+                return HttpResponse( "did not find %d"%l['graph_id'] )
+        else:
+          try:
+            if Graph.objects.filter( graph_id=p[ 'graph_id' ] ).exists():
+                g = Graph.objects.get( graph_id=p[ 'graph_id' ] )
+                if g.last_uptdated < p[ 'last_updated' ]:
+                    for t in Taboo.objects.filter( graph=g ):
+                        t.delete() 
                 g.is_synced = False
                 g.save()
-                for t in Taboo.objects.filter( graph=g ):
-                    t.delete() 
-        else:
-            g = Graph.objects.get( graph_id=p[ 'graph_id' ] )
-            if g.last_uptdated < l[ 'last_updated' ]:
-                for t in Taboo.objects.filter( graph=g ):
-                    t.delete() 
-            g.is_synced = False
-            g.save()
+          except Graph.DoesNotExist:
+            return HttpResponse( "did not find %d"%l['graph_id'])
     except:
-        print "An error has occurded in masters.views.graph_sync"
-        pass
+        return HttpResponse( "An error has occurded in masters.views.graph_sync"+ret_str )
     serializer = MasterGraphSerializer( data=p, many=is_list )
     if serializer.is_valid():
         serializer.save()
     else:
         print serializer.errors
-    return HttpResponse( "saved\n" )
+
+    for g in Graph.objects.all():
+        ret_str = ret_str+str(g.graph_id)+ ", "
+    ret_str = ret_str+"\n"
+    return HttpResponse( ret_str+"\n" )
 
