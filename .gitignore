@@ -2,3 +2,4 @@ api/CLOUDY/
 *.pyc
 simple_taboo_search/simple_taboo_search-6
 simple_taboo_search/simple_taboo_search-6.dSYM/Contents/Resources/DWARF/simple_taboo_search-6
+*.out
