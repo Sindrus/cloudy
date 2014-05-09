@@ -172,7 +172,7 @@ main(int argc,char *argv[])
 	/*
 	 * start with graph of size 20
 	 */
-	gsize = 99;
+	gsize = 90;
 	g = (int *)malloc(gsize*gsize*sizeof(int));
 	if(g == NULL) {
 		exit(1);
@@ -230,21 +230,21 @@ main(int argc,char *argv[])
 			/*
 			 * make a new graph one size bigger
 			 */
-			// new_g = (int *)malloc((gsize+1)*(gsize+1)*sizeof(int));
-			// if(new_g == NULL)
-			// 	exit(1);
+			 new_g = (int *)malloc((gsize+1)*(gsize+1)*sizeof(int));
+			 if(new_g == NULL)
+			 	exit(1);
 			/*
 			 * copy the old graph into the new graph leaving the
 			 * last row and last column alone
 			 */
-			// CopyGraph(g,gsize,new_g,gsize+1);
+			 CopyGraph(g,gsize,new_g,gsize+1);
 
 			/*
 			 * zero out the last column and last row
 			 */
 
-			// new_g[i*(gsize+1) + gsize] = 0; // last column
-			// new_g[gsize*(gsize+1) + i] = 0; // last row
+			 new_g[i*(gsize+1) + gsize] = 0; // last column
+			 new_g[gsize*(gsize+1) + i] = 0; // last row
 
 			// for(i=0; i < (gsize+1); i++)
 			// {
@@ -266,9 +266,9 @@ main(int argc,char *argv[])
 			 * throw away the old graph and make new one the
 			 * graph
 			 */
-			// free(g);
-			// g = new_g;
-			// gsize = gsize+1;
+			 free(g);
+			 g = new_g;
+			 gsize = gsize+1;
 
 			/*
 			 * reset the taboo list for the new graph
