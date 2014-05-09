@@ -10,7 +10,7 @@
 
 #define MAXSIZE (512)
 
-#define TABOOSIZE (500)
+#define TABOOSIZE (5000)
 #define BIGCOUNT (9999999)
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
@@ -327,13 +327,12 @@ main(int argc,char *argv[])
 
 
 			}
-			if (best_count>15000)
+			if (best_count>5000)
 			{
 				if(best_count == BIGCOUNT) {
 				printf("no best edge found, terminating\n");
 				exit(1);
 				}
-
 				g[best_i*gsize+best_j] = 1 - g[best_i*gsize+best_j];
 
 				count = CliqueCount(g,gsize);
@@ -350,7 +349,7 @@ main(int argc,char *argv[])
 			}
 
 		}
-		if (best_count<15000)
+		if (best_count<5000)
 		{
 			printf("hello simulated annealing\n");
 
@@ -368,11 +367,11 @@ main(int argc,char *argv[])
 
 			double randomNumber = (double)(rand() % 10) / 10;
 
-			 printf("q is %f\n", q);
-			 printf("p is %f\n", p);
+			// printf("q is %f\n", q);
+			// printf("p is %f\n", p);
 			// printf("minus q is %f\n", -q);
 			// printf("temp is %f\n", temperature);
-			 printf("random number is %f\n", randomNumber);
+			// printf("random number is %f\n", randomNumber);
 
 			if ((randomNumber > p) && !FIFOFindEdgeCount(taboo_list,i,j,count))
 			{
