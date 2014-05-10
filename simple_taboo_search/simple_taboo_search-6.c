@@ -204,8 +204,8 @@ int simulatedAnnealing(int *gPointer, int *gsizePointer, int *countPointer, int 
 	}
 	else
 	{
-		if (!FIFOFindEdgeCount(taboo_list,i,j,count))
-		{
+		// if (!FIFOFindEdgeCount(taboo_list,i,j,count))
+		// {
 			printf("selecting random neighbour\n");
 
 			int rand1 = rand() % gsize;
@@ -223,7 +223,7 @@ int simulatedAnnealing(int *gPointer, int *gsizePointer, int *countPointer, int 
 			best_j = rand2;
 
 			FIFOInsertEdgeCount(taboo_list,best_i,best_j,count);
-		}
+		// }
 		
 		
 	}
