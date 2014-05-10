@@ -410,6 +410,13 @@ void tabooSearch(int *gPointer, int *new_gPointer, int *gsizePointer, int *count
 					best_count = count;
 					best_i = i;
 					best_j = j;
+
+					printf("ce size: %d, best_count: %d, best edge: (%d,%d), new color: %d\n",
+					gsize,
+					best_count,
+					best_i,
+					best_j,
+					g[best_i*gsize+best_j]);
 				}
 
 				/*
@@ -432,12 +439,12 @@ void tabooSearch(int *gPointer, int *new_gPointer, int *gsizePointer, int *count
 			// FIFOInsertEdge(taboo_list,best_i,best_j);
 			FIFOInsertEdgeCount(taboo_list,best_i,best_j,count);
 
-			printf("ce size: %d, best_count: %d, best edge: (%d,%d), new color: %d\n",
-			gsize,
-			best_count,
-			best_i,
-			best_j,
-			g[best_i*gsize+best_j]);
+			// printf("ce size: %d, best_count: %d, best edge: (%d,%d), new color: %d\n",
+			// gsize,
+			// best_count,
+			// best_i,
+			// best_j,
+			// g[best_i*gsize+best_j]);
 
 		}
 
@@ -516,7 +523,7 @@ main(int argc,char *argv[])
 
 	//best_count = BIGCOUNT;
 
-	gsize = 90;
+	gsize = 80;
 	g = (int *)malloc(gsize*gsize*sizeof(int));
 	if(g == NULL) {
 		exit(1);
