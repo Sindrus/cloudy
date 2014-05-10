@@ -523,7 +523,7 @@ main(int argc,char *argv[])
 
 	//best_count = BIGCOUNT;
 
-	gsize = 80;
+	gsize = 90;
 	g = (int *)malloc(gsize*gsize*sizeof(int));
 	if(g == NULL) {
 		exit(1);
