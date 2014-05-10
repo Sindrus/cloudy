@@ -373,7 +373,7 @@ void tabooSearch(int *gPointer, int *new_gPointer, int *gsizePointer, int *count
 			for(j=i+1; j < gsize; j++)
 			{
 
-				if (best_count < 5000)
+				if (best_count < 6000)
 				{
 					*gPointer = *g;
 					*new_gPointer = *new_g;
@@ -565,7 +565,7 @@ main(int argc,char *argv[])
 	 {
 	 	while (best_count>0)
 		 {
-		 	if (best_count > 5000)
+		 	if (best_count > 6000)
 			{
 				tabooSearch(g, new_g, &gsize, &count, &i, &j, &best_count, &best_i, &best_j, 
 					taboo_list, &temprature_max, &dt, &temperature);
@@ -573,7 +573,7 @@ main(int argc,char *argv[])
 
 			printf("best count after taboo search is %d\n", best_count);
 
-			if (best_count <= 5000)
+			if (best_count <= 6000)
 			{
 				simulatedAnnealing(g, &gsize, &count, &i, &j, &best_i, &best_j, &best_count,
 				 taboo_list, &temprature_max, &dt, &temperature);
