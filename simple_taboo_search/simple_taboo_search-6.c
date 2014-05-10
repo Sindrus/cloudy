@@ -287,8 +287,8 @@ void tabooSearch(int *gPointer, int *new_gPointer, int *gsizePointer, int *count
 	/*
 	 * while we do not have a publishable result
 	 */
-	// while(gsize < 102)
-	// {
+	 while(gsize < 102)
+	 {
 		/*
 		 * find out how we are doing
 		 */
@@ -297,64 +297,64 @@ void tabooSearch(int *gPointer, int *new_gPointer, int *gsizePointer, int *count
 		/*
 		 * if we have a counter example
 		 */
-		// if(count == 0)
-		// {
-		// 	printf("Eureka!  Counter-example found!\n");
-		// 	PrintGraph(g,gsize);
-		// 	/*
-		// 	 * make a new graph one size bigger
-		// 	 */
-		// 	 new_g = (int *)malloc((gsize+1)*(gsize+1)*sizeof(int));
-		// 	 if(new_g == NULL)
-		// 	 	exit(1);
-		// 	/*
-		// 	 * copy the old graph into the new graph leaving the
-		// 	 * last row and last column alone
-		// 	 */
-		// 	 CopyGraph(g,gsize,new_g,gsize+1);
+		if(count == 0)
+		{
+			printf("Eureka!  Counter-example found!\n");
+			PrintGraph(g,gsize);
+			/*
+			 * make a new graph one size bigger
+			 */
+			 new_g = (int *)malloc((gsize+1)*(gsize+1)*sizeof(int));
+			 if(new_g == NULL)
+			 	exit(1);
+			/*
+			 * copy the old graph into the new graph leaving the
+			 * last row and last column alone
+			 */
+			 CopyGraph(g,gsize,new_g,gsize+1);
 
-		// 	/*
-		// 	 * zero out the last column and last row
-		// 	 */
+			/*
+			 * zero out the last column and last row
+			 */
 
-		// 	 new_g[i*(gsize+1) + gsize] = 0; // last column
-		// 	 new_g[gsize*(gsize+1) + i] = 0; // last row
+			 new_g[i*(gsize+1) + gsize] = 0; // last column
+			 new_g[gsize*(gsize+1) + i] = 0; // last row
 
-		// 	// for(i=0; i < (gsize+1); i++)
-		// 	// {
-		// 	// 	int r = rand() % 1;
-		// 	// 	if (r < 0.5)
-		// 	// 	{
-		// 	// 		new_g[i*(gsize+1) + gsize] = 0; // last column
-		// 	// 		new_g[gsize*(gsize+1) + i] = 1; // last row
-		// 	// 	}
-		// 	// 	else
-		// 	// 	{
-		// 	// 		new_g[i*(gsize+1) + gsize] = 1; // last column
-		// 	// 		new_g[gsize*(gsize+1) + i] = 0; // last row
-		// 	// 	}
+			// for(i=0; i < (gsize+1); i++)
+			// {
+			// 	int r = rand() % 1;
+			// 	if (r < 0.5)
+			// 	{
+			// 		new_g[i*(gsize+1) + gsize] = 0; // last column
+			// 		new_g[gsize*(gsize+1) + i] = 1; // last row
+			// 	}
+			// 	else
+			// 	{
+			// 		new_g[i*(gsize+1) + gsize] = 1; // last column
+			// 		new_g[gsize*(gsize+1) + i] = 0; // last row
+			// 	}
 				
-		// 	// }
+			// }
 
-		// 	/*
-		// 	 * throw away the old graph and make new one the
-		// 	 * graph
-		// 	 */
-		// 	 free(g);
-		// 	 g = new_g;
-		// 	 gsize = gsize+1;
+			/*
+			 * throw away the old graph and make new one the
+			 * graph
+			 */
+			 free(g);
+			 g = new_g;
+			 gsize = gsize+1;
 
-		// 	/*
-		// 	 * reset the taboo list for the new graph
-		// 	 */
-		// 	taboo_list = FIFOResetEdge(taboo_list);
+			/*
+			 * reset the taboo list for the new graph
+			 */
+			taboo_list = FIFOResetEdge(taboo_list);
 
-		// 	/*
-		// 	 * keep going
-		// 	 */
-		// 	continue;
-		// 	//break;
-		// }
+			/*
+			 * keep going
+			 */
+			continue;
+			//break;
+		}
 
 		/*
 		 * otherwise, we need to consider flipping an edge
@@ -471,9 +471,9 @@ void tabooSearch(int *gPointer, int *new_gPointer, int *gsizePointer, int *count
 		/*
 		 * rinse and repeat
 		 */
-	// }
+	}
 
-	FIFODeleteGraph(taboo_list);
+	
 
 	*gPointer = *g;
 	*new_gPointer = *new_g;
@@ -489,7 +489,10 @@ void tabooSearch(int *gPointer, int *new_gPointer, int *gsizePointer, int *count
 	*dtPointer = dt;
 	*temperaturePointer = temperature;
 
+	FIFODeleteGraph(taboo_list);
+
 	//return(0);
+
 }
 
 
