@@ -483,18 +483,23 @@ void tabooSearch(int *gPointer, int *new_gPointer, int *gsizePointer, int *count
 			printf("no best edge found, terminating\n");
 			exit(1);
 			}
-			g[best_i*gsize+best_j] = 1 - g[best_i*gsize+best_j];
 
-			count = CliqueCount(g,gsize);
-			// FIFOInsertEdge(taboo_list,best_i,best_j);
-			FIFOInsertEdgeCount(taboo_list,best_i,best_j,count);
+			if (i == best_i)
+			{
+				g[best_i*gsize+best_j] = 1 - g[best_i*gsize+best_j];
 
-			printf("ce size: %d, best_count: %d, best edge: (%d,%d), new color: %d\n",
-			gsize,
-			best_count,
-			best_i,
-			best_j,
-			g[best_i*gsize+best_j]);
+				count = CliqueCount(g,gsize);
+				// FIFOInsertEdge(taboo_list,best_i,best_j);
+				FIFOInsertEdgeCount(taboo_list,best_i,best_j,count);
+
+				printf("ce size: %d, best_count: %d, best edge: (%d,%d), new color: %d\n",
+				gsize,
+				best_count,
+				best_i,
+				best_j,
+				g[best_i*gsize+best_j]);
+			}
+			
 
 		}
 
