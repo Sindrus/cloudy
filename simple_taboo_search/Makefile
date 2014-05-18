@@ -1,7 +1,7 @@
 CC = gcc
 TOP = .
 INCLUDES = -I$(TOP)
-CFLAGS = -g 
+CFLAGS = -g -std=c99
 COMPILE = $(CC) $(INCLUDES) $(CFLAGS)
 
 INCL=./jrb.h ./jval.h ./dllist.h ./fifo.h
