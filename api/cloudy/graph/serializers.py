@@ -1,4 +1,7 @@
 import math
+from datetime import datetime
+
+from pytz import timezone as ptz
 
 from rest_framework import serializers
 from django.forms import widgets
@@ -63,9 +66,12 @@ class GraphSerializer( serializers.ModelSerializer ):
     def restore_object( self, attrs, instance=None ):
         graph_id = attrs.get( 'graph_id' ) if attrs.get( 'graph_id' )\
                 else helper_util.gen_id()
+        
+        d = attrs.get( 'last_updated' )
+        d = d.replace( tzinfo=ptz( 'UTC' ) )
         try:
             instance = Graph.objects.get( graph_id = graph_id )
-            if instance.last_updated > attrs.get( 'last_updated' ):
+            if instance.last_updated > d:
                 return instance
         except Graph.DoesNotExist:
             instance = Graph( graph_id = graph_id )

@@ -69,31 +69,39 @@ def new( request ):
     serializer = GraphSerializer( g )
     return JSONResponse( serializer.data )
 
+from datetime import datetime
+from pytz import timezone as ptz
 @csrf_exempt
 def save( request ):
     b = BytesIO(request.body)
     p = JSONParser().parse(b)
     is_list = isinstance( p, list )
-    try:
-        if is_list:
-            for l in p:
+    if is_list:
+        for l in p:
+            d = datetime.strptime( l[ 'last_updated' ], "%Y-%m-%d %H:%M:%S")
+            d = d.replace( tzinfo=ptz( 'UTC' ) )
+            try:
                 g = Graph.objects.get( graph_id=l[ 'graph_id' ] )
-                if g.last_updated > l[ 'last_updated' ]:
+                if g.last_updated > d:
                     continue
                 g.is_synced = False
                 g.save()
                 for t in Taboo.objects.filter( graph=g ):
                     t.delete() 
-        else:
+            except Graph.DoesNotExist:
+                g = Graph( graph_id = l[ 'graph_id' ] )
+    else:
+        try:
             g = Graph.objects.get( graph_id=p[ 'graph_id' ] )
-            if g.last_uptdated < l[ 'last_updated' ]:
+            d = datetime.strptime( p[ 'last_updated' ], "%Y-%m-%d %H:%M:%S")
+            d = d.replace( tzinfo=ptz( 'UTC' ) )
+            if g.last_updated < d:
                 for t in Taboo.objects.filter( graph=g ):
                     t.delete() 
             g.is_synced = False
             g.save()
-    except:
-        print "An error has occurded in graph.views.save"
-        pass
+        except Graph.DoesNotExist:
+            g = Graph( graph_id = p[ 'graph_id' ] )
     serializer = GraphSerializer( data=p, many=is_list )
     if serializer.is_valid():
         serializer.save()
