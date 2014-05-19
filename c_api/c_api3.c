@@ -244,7 +244,7 @@ char *graph_to_string( int *graph, int size ){
 }
 
 void submit( char *data ){
-     CURL *curl;
+    CURL *curl;
     CURLcode res;
         
     /* In windows, this will init the winsock stuff */ 
@@ -256,9 +256,9 @@ void submit( char *data ){
         /* First set the URL that is about to receive our POST. This URL can
         just as well be a https:// URL if that is what should receive the
         data. */ 
-        curl_easy_setopt(curl, CURLOPT_URL, "http://postit.example.com/moo.cgi");
+        curl_easy_setopt(curl, CURLOPT_URL, "http://sindrus.net/cloud/slave/save");
         /* Now specify the POST data */ 
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "name=daniel&project=curl");
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
                                                       
         /* Perform the request, res will get the return code */ 
         res = curl_easy_perform(curl);
@@ -295,8 +295,9 @@ void save_graph( long graphId,
                       graphStr, inProgress, graphSize, graphId, isSolution,
                       tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour,
                       tm.tm_min, tm.tm_sec );
-    free( graphStr );
+    submit( jsonStr );
     printf( "%s\n", jsonStr );
+    free( graphStr );
 
 }
 
@@ -317,7 +318,7 @@ int main(){
 //    new_graph();
     long graphId = 2333601399676259;
     int graphSize = 2;
-    int graph[ 4 ] = { 1, 1, 0, 0 };
+    int graph[ 4 ] = { 1, 1, 0, 1 };
     int isSolution = 0;
     save_graph( graphId, graphSize, graph, isSolution );
     return 0;
