@@ -78,7 +78,7 @@ class GraphSerializer( serializers.ModelSerializer ):
 
         instance.in_progress = attrs.get( 'in_progress' )
         instance.matrix_size = attrs.get( 'matrix_size' )
-        instance.graph = d
+        instance.graph = attrs.get( 'graph' )
         instance.last_updated = attrs.get( 'last_updated' )
 
         return instance
