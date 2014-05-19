@@ -1,7 +1,7 @@
 import math
 from datetime import datetime
 
-import pytz as ptz
+from pytz import timezone as ptz
 
 from rest_framework import serializers
 from django.forms import widgets
@@ -66,7 +66,7 @@ class GraphSerializer( serializers.ModelSerializer ):
     def restore_object( self, attrs, instance=None ):
         graph_id = attrs.get( 'graph_id' ) if attrs.get( 'graph_id' )\
                 else helper_util.gen_id()
-        #d = datetime.strptime( attrs.get( 'last_updated' ), "%Y-%m-%d %H:%M:%S")
+        
         d = attrs.get( 'last_updated' )
         d = d.replace( tzinfo=ptz( 'UTC' ) )
         try:
