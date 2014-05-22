@@ -4,13 +4,14 @@
 #include <errno.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 
 #include "fifo.h"	/* for taboo list */
 
 
 #define MAXSIZE (512)
 
-#define TABOOSIZE (5000)
+#define TABOOSIZE (1000)
 #define BIGCOUNT (9999999)
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
@@ -158,7 +159,9 @@ int simulatedAnnealing(int *gPointer, int *gsizePointer, int *iPointer, int *jPo
 {
 	int *g = gPointer;
 	int gsize = *gsizePointer;
+
 	int count;
+	
 	int i = *iPointer;
 	int j = *jPointer;
 	int best_i = *best_iPointer;
@@ -169,15 +172,21 @@ int simulatedAnnealing(int *gPointer, int *gsizePointer, int *iPointer, int *jPo
 	double dt = *dtPointer;
 	double temperature = *temperaturePointer;
 
+
+	double evFunction;
+	double randomNumber;
+
+
 	printf("hello simulated annealing\n");
+
 
 	//lets do simulated annealing instead
 
 	for (int i = 0; i < gsize; ++i)
 	{
-		for (int j = 0; j < gsize; ++j)
+		for (int j = i+1; j < gsize; ++j)
 		{
-
+			//return if we have found a solution
 			if (best_count == 0)
 			{
 				*gPointer = *g;
@@ -195,74 +204,43 @@ int simulatedAnnealing(int *gPointer, int *gsizePointer, int *iPointer, int *jPo
 				return(0);
 			}
 
+			//flip and check count
+			g[i*gsize+j] = 1-g[i*gsize+j];
+
 			count = CliqueCount(g, gsize);
 
-			printf("count is %d\n", count);
-			printf("best count is %d\n", best_count);
+			//evaluate the solution
 
-			int best_neighbour = g[best_i*gsize+best_j];
-
-			double q = (double)count - (double)best_count;
-			double p = min(1.0, exp((double)-q / (double)temperature));
-
-			double randomNumber = (double)(rand() % 10) / 10;
-
-			 printf("q is %f\n", q);
-			 printf("p is %f\n", p);
-			 printf("minus q is %f\n", -q);
-			 printf("temp is %f\n", temperature);
-			 printf("random number is %f\n", randomNumber);
-
-			if ((randomNumber > p) && !FIFOFindEdgeCount(taboo_list,i,j,count))
+			if(count < best_count)
 			{
-				g[best_i*gsize+best_j] = 1 - g[best_i*gsize+best_j];
-				printf("exploiting better results\n");
-
-				best_count = best_count;
-				best_i = best_i;
-				best_j = best_j;
-
-				FIFOInsertEdgeCount(taboo_list,best_i,best_j,count);
+				evFunction = 1.0;
 			}
 			else
 			{
-				while (count >= 6000)
-				{
-					count = CliqueCount(g, gsize);
-				}
-
-				int rand1 = rand() % gsize;
-				int rand2 = rand() % gsize;
-
-				while (FIFOFindEdgeCount(taboo_list, rand1, rand2, count))
-				{
-					rand1 = rand() % gsize;
-					rand2 = rand() % gsize;
-				}
-				
-				if (!FIFOFindEdgeCount(taboo_list, rand1, rand2, count))
-				{
-					printf("selecting random neighbour\n");
-
-					printf("%d\n", rand1);
-					printf("%d\n", rand2);
-
-					g[rand1*gsize+rand2] = 1 - g[rand1*gsize+rand2];
-
-					//count = CliqueCount(g, gsize);
-
-					best_count = count;
-					i = rand1;
-					j = rand2;
-					best_i = rand1;
-					best_j = rand2;
-
-					FIFOInsertEdgeCount(taboo_list,best_i,best_j,count);
-				}
-				
-				
+				evFunction = exp( (best_count - count) / temperature );
 			}
 
+			//flip it back
+			g[i*gsize+j] = 1-g[i*gsize+j];
+
+			randomNumber = (double)(rand() % 10) / 10.0;
+
+			// printf("random number is %f\n", randomNumber);
+			// printf("ev function is %f\n", evFunction);
+
+			if (evFunction > 0.999997 || evFunction==1.0)
+			{
+				// printf("found better solution\n");
+				best_i = i;
+				best_j = j;
+				best_count = count;
+			}
+			// else
+			// 	{
+			// 		printf("let's explore\n");
+			// 	}
+
+			//decrease the temprature
 			if(temperature-dt <= 0)
 			{
 				temperature = 0;
@@ -285,6 +263,28 @@ int simulatedAnnealing(int *gPointer, int *gsizePointer, int *iPointer, int *jPo
 			{
 				temperature = temperature-dt;
 			}
+			
+
+		}
+
+		// if (i!=best_i)
+		// {
+		// 	printf("have to select a random neighbor\n");
+		// 	int rand1 = rand() % gsize;
+		// 	int rand2 = rand() % gsize;
+
+		// 	g[rand1*gsize+rand2] = 1-g[rand1*gsize+rand2];
+		// 	count = CliqueCount(g, gsize);
+
+		// 	best_i = rand1;
+		// 	best_j = rand2;
+		// 	best_count = count;
+
+		// }
+
+		if (i==best_i)
+		{
+			g[best_i*gsize+best_j] = 1 - g[best_i*gsize+best_j];
 
 			printf("ce size: %d, best_count: %d, best edge: (%d,%d), new color: %d\n",
 			gsize,
@@ -293,6 +293,9 @@ int simulatedAnnealing(int *gPointer, int *gsizePointer, int *iPointer, int *jPo
 			best_j,
 			g[best_i*gsize+best_j]);
 		}
+		
+
+		
 	}
 
 	*gPointer = *g;
@@ -422,7 +425,7 @@ void tabooSearch(int *gPointer, int *new_gPointer, int *gsizePointer, int *count
 			for(j=i+1; j < gsize; j++)
 			{
 
-				if (best_count < 6000)
+				if (best_count < 5500)
 				{
 					*gPointer = *g;
 					*new_gPointer = *new_g;
@@ -572,8 +575,8 @@ main(int argc,char *argv[])
 	int best_j;
 	void *taboo_list;
 
-	double temprature_max = 1.0;
-	double dt = 0.00001;
+	double temprature_max = 1000000;
+	double dt = 1;
 	double temperature = temprature_max;
 
 	//best_count = BIGCOUNT;
@@ -598,6 +601,8 @@ main(int argc,char *argv[])
 
 	 //memset(g,0,gsize*gsize*sizeof(int));
 
+	srand( time( NULL ) );
+
 	 for (int i = 0; i < gsize; ++i)
 	 {
 	 	for (int j = 0; j < gsize; ++j)
@@ -620,7 +625,7 @@ main(int argc,char *argv[])
 	 {
 	 	while (best_count>0)
 		 {
-		 	if (best_count > 6000)
+		 	if (best_count > 5500)
 			{
 				tabooSearch(g, new_g, &gsize, &count, &i, &j, &best_count, &best_i, &best_j, 
 					taboo_list, &temprature_max, &dt, &temperature);
@@ -628,13 +633,13 @@ main(int argc,char *argv[])
 
 			printf("best count after taboo search is %d\n", best_count);
 
-			if (best_count <= 6000 && temperature > 0)
+			if ( (best_count <= 5500 && temperature > 0) )
 			{
 				simulatedAnnealing(g, &gsize, &i, &j, &best_i, &best_j, &best_count,
 				 taboo_list, &temprature_max, &dt, &temperature);
 			}
 
-			if (temperature < 0)
+			if (temperature <= 0)
 			{
 				return(0);
 			}
