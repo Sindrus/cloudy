@@ -10,7 +10,7 @@ PRED=.
 BOBJ=$(COMMON)/jval.o $(COMMON)/jrb.o $(COMMON)/dllist.o $(COMMON)/fifo.o
 LIBS= -lm 
 
-PROGRAMS = simple_taboo_search simple_taboo_search-6
+PROGRAMS = azm-search simple_taboo_search simple_taboo_search-6
 
 all: $(PROGRAMS)
 
@@ -20,6 +20,9 @@ simple_taboo_search: simple_taboo_search.c $(INCL) ${BOBJ}
 
 simple_taboo_search-6: simple_taboo_search-6.c $(INCL) ${BOBJ}
 	$(COMPILE) ${INCLUDES} -o simple_taboo_search-6 simple_taboo_search-6.c $(BOBJ) $(LIBS)
+
+azm-search: azm-search.c $(INCL) ${BOBJ}
+	$(COMPILE) ${INCLUDES} -o azm-search azm-search.c $(BOBJ) $(LIBS)
 
 fifo.o: fifo.c fifo.h jrb.h jval.h dllist.h
 	$(COMPILE) ${INCLUDES} -c fifo.c
