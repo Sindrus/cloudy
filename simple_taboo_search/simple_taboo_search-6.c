@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 
 #include "fifo.h"	/* for taboo list */
 
@@ -599,6 +600,8 @@ main(int argc,char *argv[])
 	 */
 
 	 //memset(g,0,gsize*gsize*sizeof(int));
+
+	srand( time( NULL ) );
 
 	 for (int i = 0; i < gsize; ++i)
 	 {
