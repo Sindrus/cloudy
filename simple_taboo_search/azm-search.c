@@ -423,6 +423,10 @@ void find_ramsey(){
             }
             printf("Counter-example found!\n");
             //PrintGraph( g, gsize );
+            if( gsize == 99 ){
+                save_graph( graphId, gsize, g, 1 );
+                exit( 0 );
+            }
             
             free( new_g );
             new_g = malloc( ( gsize+1 ) * ( gsize+1 ) * sizeof( int ) );
