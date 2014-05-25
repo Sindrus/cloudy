@@ -437,6 +437,19 @@ void find_ramsey(){
 
             taboo_list = FIFOResetEdge( taboo_list );
             gsize = gsize + 1;
+
+            /*
+            * HaxFix a wierd problem \o/
+            */
+            for( int i = 0; i < gsize*gsize; i++ ){
+                if( g[ i ] == 1 || g[ i ] == 0 ){
+                    continue;
+                }else{
+                    printf( "Need to fix\n" );
+                    g[ i ] = rand()%1;  
+                }
+            }
+
             printf( "starting over on size %d\n", gsize );
 
         }

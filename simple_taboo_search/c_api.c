@@ -294,10 +294,7 @@ void save_graph( long graphId,
                       tm.tm_min, tm.tm_sec );
     printf( "json: \n%s\n", jsonStr );
     submit( jsonStr );
-    printf( "done saving\n" );
-    printf( "free json\n" );
     free( jsonStr );
-    printf( "free grph\n" );
     free( graphStr );
 }
 
