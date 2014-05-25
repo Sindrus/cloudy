@@ -236,41 +236,32 @@ void fetch_new_graph( int **graph, int *graphSize, long *graphId ){
  * 
 **/
 
-char *graph_to_string( int *graph, int size ){
-    char *strGraph = malloc( size*size );
+void graph_to_string( char *strGraph, int *graph, int size ){
     for( int i = 0; i < size*size; i++ )
         strGraph[i] = graph[i]+'0';
-    return strGraph;
 }
 
 void submit( char *data ){
+    printf( "submitting\n" );
     CURL *curl;
     CURLcode res;
         
-    /* In windows, this will init the winsock stuff */ 
     curl_global_init(CURL_GLOBAL_ALL);
              
-    /* get a curl handle */ 
     curl = curl_easy_init();
     if(curl) {
-        /* First set the URL that is about to receive our POST. This URL can
-        just as well be a https:// URL if that is what should receive the
-        data. */ 
         curl_easy_setopt(curl, CURLOPT_URL, "http://sindrus.net/cloud/slave/save");
-        /* Now specify the POST data */ 
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
                                                       
-        /* Perform the request, res will get the return code */ 
         res = curl_easy_perform(curl);
-        /* Check for errors */ 
         if(res != CURLE_OK)
             fprintf(stderr, "curl_easy_perform() failed: %s\n",
                 curl_easy_strerror(res));
                                                                                  
-        /* always cleanup */ 
         curl_easy_cleanup(curl);
     }
     curl_global_cleanup();
+    printf( "done submitting\n" );
 }
 
 void save_graph( long graphId, 
@@ -278,12 +269,18 @@ void save_graph( long graphId,
                  int *graph, 
                  int isSolution ){
     
-    int jsonlength = 160+graphSize;
+    printf( "\nEnd graph\n" );
+
+    int jsonlength = 160+( graphSize*graphSize );
     int inProgress = isSolution; 
     char *jsonStr = malloc( jsonlength );
-    char *graphStr = graph_to_string( graph, graphSize );
+    char *graphStr = malloc( graphSize*graphSize );
+    graph_to_string( graphStr, graph, graphSize );
     time_t t = time(NULL);
     struct tm tm = *gmtime(&t);
+    printf( "saving\n" );
+
+    //printf( "graph:\n%s\n", graphStr );
 
     sprintf( jsonStr, "{ \"graph\" : \"%s\", "
                       "\"in_progress\" : %d, "
@@ -295,10 +292,13 @@ void save_graph( long graphId,
                       graphStr, inProgress, graphSize, graphId, isSolution,
                       tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour,
                       tm.tm_min, tm.tm_sec );
+    printf( "json: \n%s\n", jsonStr );
     submit( jsonStr );
-    printf( "%s\n", jsonStr );
+    printf( "done saving\n" );
+    printf( "free json\n" );
+    free( jsonStr );
+    printf( "free grph\n" );
     free( graphStr );
-
 }
 
 /**

@@ -22,7 +22,7 @@ simple_taboo_search-6: simple_taboo_search-6.c $(INCL) ${BOBJ}
 	$(COMPILE) ${INCLUDES} -o simple_taboo_search-6 simple_taboo_search-6.c $(BOBJ) $(LIBS)
 
 azm-search: azm-search.c $(INCL) ${BOBJ}
-	$(COMPILE) ${INCLUDES} -o azm-search azm-search.c $(BOBJ) $(LIBS)
+	$(COMPILE) ${INCLUDES} -o azm-search azm-search.c c_api.c $(BOBJ) $(LIBS) -lcurl -lc -I jsmn/ -L jsmn/ -ljsmn
 
 fifo.o: fifo.c fifo.h jrb.h jval.h dllist.h
 	$(COMPILE) ${INCLUDES} -c fifo.c
