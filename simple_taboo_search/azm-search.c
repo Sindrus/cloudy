@@ -12,7 +12,7 @@
 #define MAXSIZE (512)
 #define MAXGRAPHSIZE ( 101 )
 
-#define TABOOSIZE (5000)
+#define TABOOSIZE (500)
 #define BIGCOUNT (9999999)
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
@@ -63,7 +63,7 @@ void PrintGraph(int *g, int gsize)
 	int i;
 	int j;
 
-	fprintf(stdout,"%d\n",gsize);
+	//fprintf(stdout,"%d\n",gsize);
 
 	for(i=0; i < gsize; i++)
 	{
@@ -103,7 +103,6 @@ void CopyGraph(int *old_g, int o_gsize, int *new_g, int n_gsize)
 
 	return;
 }
-
 
 /*
  ***
@@ -317,7 +316,7 @@ int simulatedAnnealing(int *g, int *gsize, int *best_i, int *best_j,
 	return 0;
 }
 
-void tabooSearch( int *g, int gsize, int *best_count, void **taboo_list,
+void tabooSearch( int *g, int gsize, int *best_count, void *taboo_list,
                     struct History *h ){
     int local_best_i = -1;
     int local_best_j = -1;
@@ -329,7 +328,8 @@ void tabooSearch( int *g, int gsize, int *best_count, void **taboo_list,
             g[ i * gsize + j ] = 1 - g[ i * gsize + j ];
             count = CliqueCountImp( g, gsize, local_best_count );
             if( ( count < local_best_count ) && 
-                    !FIFOFindEdgeCount( *taboo_list, i, j, count ) ){
+                    //!FIFOFindEdgeCount( taboo_list, i, j, count ) ){
+                    !FIFOFindEdge( taboo_list, i, j ) ){
                 local_best_count = count;
                 local_best_i = i;
                 local_best_j = j;
@@ -344,14 +344,16 @@ void tabooSearch( int *g, int gsize, int *best_count, void **taboo_list,
                 1 - g[ local_best_i * gsize + local_best_j ];
 
         *best_count = local_best_count;
-        FIFOInsertEdgeCount( *taboo_list, local_best_i, local_best_j, local_best_count);
+        //FIFOInsertEdgeCount( taboo_list, local_best_i, local_best_j, local_best_count);
+        FIFOInsertEdge( taboo_list, local_best_i, local_best_j );
 
         add_to_history( h, local_best_i, local_best_j );
 
         printf( "Flipped best bit: (%3d,%3d ), count %d, gsize: %d, new bit: %d\n",
                 local_best_i, local_best_j, local_best_count, gsize, 
                 g[ local_best_i * gsize + local_best_j ] );
-        //PrintGraph( g, gsize );
+//        printf( "new value: %d\n", g[ local_best_i * gsize + local_best_j ] );
+//        PrintGraph( g, gsize );
     }else{
         struct HistoryStep *hs = get_last_step( h );
         printf( "undo last step, wrong way. Last step: (%3d,%3d )\n",
@@ -412,53 +414,46 @@ void find_ramsey(){
             printf( "start graph: \n" );
             PrintGraph( g, gsize );
             best_count = CliqueCount( g, gsize );
+
             while ( best_count > 0 )
             {
-                tabooSearch( g, gsize, &best_count, &taboo_list, &h );
-                if( difftime( time( NULL ), last_sync ) > 120 ){
+                tabooSearch( g, gsize, &best_count, taboo_list, &h );
+                if( difftime( time( NULL ), last_sync ) > 50 ){
                     printf( "sync\n" );
                     last_sync = time( NULL );
+
                     save_graph( graphId, gsize, g, 0 );
                 }
             }
+
             printf("Counter-example found!\n");
-            //PrintGraph( g, gsize );
+            PrintGraph( g, gsize );
             if( gsize == 99 ){
                 save_graph( graphId, gsize, g, 1 );
                 exit( 0 );
             }
             
-            free( new_g );
-            new_g = malloc( ( gsize+1 ) * ( gsize+1 ) * sizeof( int ) );
+            new_g = (int *)malloc( ( gsize+1 ) * ( gsize+1 ) * sizeof( int ) );
             if(new_g == NULL)
                 exit(1);
-
             PrintGraph( g, gsize );
             CopyGraph( g, gsize , new_g, gsize + 1 );
-            printf( "heiheis\n" );
-            PrintGraph( new_g, gsize + 1 );
+
+			for( int i=0; i < (gsize+1); i++){
+				new_g[i*(gsize+1) + gsize] = 0;
+				new_g[gsize*(gsize+1) + i] = 0;
+			}
+
+            free( g );
             g = new_g;
 
             taboo_list = FIFOResetEdge( taboo_list );
             gsize = gsize + 1;
 
-            /*
-            * HaxFix a wierd problem \o/
-            */
-            for( int i = 0; i < gsize*gsize; i++ ){
-                if( g[ i ] == 1 || g[ i ] == 0 ){
-                    continue;
-                }else{
-                    printf( "Need to fix\n" );
-                    g[ i ] = rand()%1;  
-                }
-            }
-
             printf( "starting over on size %d\n", gsize );
 
         }
     }
-    free( g );
     free( new_g );
     FIFODeleteGraph( taboo_list );
     clean_history( &h );

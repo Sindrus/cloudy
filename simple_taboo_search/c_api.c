@@ -237,6 +237,7 @@ void fetch_new_graph( int **graph, int *graphSize, long *graphId ){
 **/
 
 void graph_to_string( char *strGraph, int *graph, int size ){
+    printf( "tot length: %d", size*size );
     for( int i = 0; i < size*size; i++ )
         strGraph[i] = graph[i]+'0';
 }
@@ -280,7 +281,7 @@ void save_graph( long graphId,
     struct tm tm = *gmtime(&t);
     printf( "saving\n" );
 
-    //printf( "graph:\n%s\n", graphStr );
+    printf( "graphStr:\n%s\nend GraphStr\n", graphStr );
 
     sprintf( jsonStr, "{ \"graph\" : \"%s\", "
                       "\"in_progress\" : %d, "
@@ -293,7 +294,7 @@ void save_graph( long graphId,
                       tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour,
                       tm.tm_min, tm.tm_sec );
     printf( "json: \n%s\n", jsonStr );
-    submit( jsonStr );
+    //submit( jsonStr );
     free( jsonStr );
     free( graphStr );
 }
