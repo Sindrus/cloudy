@@ -347,7 +347,7 @@ void tabooSearch( int *g, int gsize, int *best_count, void *taboo_list,
         //FIFOInsertEdgeCount( taboo_list, local_best_i, local_best_j, local_best_count);
         FIFOInsertEdge( taboo_list, local_best_i, local_best_j );
 
-        add_to_history( h, local_best_i, local_best_j );
+        //add_to_history( h, local_best_i, local_best_j );
 
         printf( "Flipped best bit: (%3d,%3d ), count %d, gsize: %d, new bit: %d\n",
                 local_best_i, local_best_j, local_best_count, gsize, 
@@ -355,10 +355,17 @@ void tabooSearch( int *g, int gsize, int *best_count, void *taboo_list,
 //        printf( "new value: %d\n", g[ local_best_i * gsize + local_best_j ] );
 //        PrintGraph( g, gsize );
     }else{
-        struct HistoryStep *hs = get_last_step( h );
+        
+        /*struct HistoryStep *hs = get_last_step( h );
         printf( "undo last step, wrong way. Last step: (%3d,%3d )\n",
                 hs->i, hs->j );
         g[ hs->i * gsize + hs->j ] = 1 - g[ hs->i * gsize + hs->j ];
+        *best_count = CliqueCount( g, gsize );*/
+
+        srand( time( NULL ) );
+        int i = rand()%gsize;
+        int j = rand()%gsize;
+        g[ i * gsize + j ] = 1 - g[ i * gsize + j ];
         *best_count = CliqueCount( g, gsize );
     }
 }
@@ -418,7 +425,7 @@ void find_ramsey(){
             while ( best_count > 0 )
             {
                 tabooSearch( g, gsize, &best_count, taboo_list, &h );
-                if( difftime( time( NULL ), last_sync ) > 50 ){
+                if( difftime( time( NULL ), last_sync ) > 120 ){
                     printf( "sync\n" );
                     last_sync = time( NULL );
 

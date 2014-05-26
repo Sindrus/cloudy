@@ -294,7 +294,7 @@ void save_graph( long graphId,
                       tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour,
                       tm.tm_min, tm.tm_sec );
     printf( "json: \n%s\n", jsonStr );
-    //submit( jsonStr );
+    submit( jsonStr );
     free( jsonStr );
     free( graphStr );
 }
