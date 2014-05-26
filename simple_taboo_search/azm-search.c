@@ -60,14 +60,11 @@ struct HistoryStep* get_last_step( struct History *h ){
  */
 void PrintGraph(int *g, int gsize)
 {
-	int i;
-	int j;
+	fprintf(stdout,"%d\n",gsize);
 
-	//fprintf(stdout,"%d\n",gsize);
-
-	for(i=0; i < gsize; i++)
+	for(int i=0; i < gsize; i++)
 	{
-		for(j=0; j < gsize; j++)
+		for(int j=0; j < gsize; j++)
 		{
 			fprintf(stdout,"%d ",g[i*gsize+j]);
 		}
@@ -425,10 +422,13 @@ void find_ramsey(){
             while ( best_count > 0 )
             {
                 tabooSearch( g, gsize, &best_count, taboo_list, &h );
-                if( difftime( time( NULL ), last_sync ) > 120 ){
+                if( difftime( time( NULL ), last_sync ) > 10 ){
                     printf( "sync\n" );
                     last_sync = time( NULL );
-
+//                    for( int x = 0; x < gsize*gsize; x++ ){
+//                        printf( "%d",g[x] );
+//                    }
+//                    printf( "\n" );
                     save_graph( graphId, gsize, g, 0 );
                 }
             }

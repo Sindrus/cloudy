@@ -240,6 +240,7 @@ void graph_to_string( char *strGraph, int *graph, int size ){
     printf( "tot length: %d", size*size );
     for( int i = 0; i < size*size; i++ )
         strGraph[i] = graph[i]+'0';
+    strGraph[ size*size ] = '\0';
 }
 
 void submit( char *data ){
@@ -272,16 +273,17 @@ void save_graph( long graphId,
     
     printf( "\nEnd graph\n" );
 
-    int jsonlength = 160+( graphSize*graphSize );
+    int jsonlength = 159+( graphSize*graphSize );
     int inProgress = isSolution; 
-    char *jsonStr = malloc( jsonlength );
-    char *graphStr = malloc( graphSize*graphSize );
+    char jsonStr[ jsonlength ];// = malloc( jsonlength );
+    char *graphStr = malloc( graphSize*graphSize+1 );
     graph_to_string( graphStr, graph, graphSize );
     time_t t = time(NULL);
     struct tm tm = *gmtime(&t);
-    printf( "saving\n" );
 
-    printf( "graphStr:\n%s\nend GraphStr\n", graphStr );
+//    printf( "jsonlength: %d\n", jsonlength );
+
+//    printf( "graphStr:\n%s\nend GraphStr\n", graphStr );
 
     sprintf( jsonStr, "{ \"graph\" : \"%s\", "
                       "\"in_progress\" : %d, "
@@ -289,13 +291,13 @@ void save_graph( long graphId,
                       "\"graph_id\" : %ld, "
                       "\"taboos\" : [], "
                       "\"is_solution\" : %d, "
-                      "\"last_updated\" : \"%d-%d-%d %d:%d:%d\" }",
+                      "\"last_updated\" : \"%d-%d-%d %d:%d:%d\" }\0",
                       graphStr, inProgress, graphSize, graphId, isSolution,
                       tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour,
                       tm.tm_min, tm.tm_sec );
     printf( "json: \n%s\n", jsonStr );
     submit( jsonStr );
-    free( jsonStr );
+//    free( jsonStr );
     free( graphStr );
 }
 
