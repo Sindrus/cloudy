@@ -313,6 +313,62 @@ int simulatedAnnealing(int *g, int *gsize, int *best_i, int *best_j,
 	return 0;
 }
 
+void fastTabooSearch( int *g, int gsize, int *best_count, void *taboo_list,
+                    struct History *h ) {
+	int local_best_i = -1;
+    int local_best_j = -1;
+    int local_best_count = BIGCOUNT;
+    int count = CliqueCount( g, gsize );
+
+    for( int i = 0; i < gsize; i++){
+        for( int j = i + 1; j < gsize; j++){
+            g[ i * gsize + j ] = 1 - g[ i * gsize + j ];
+            count = CliqueCountImp( g, gsize, local_best_count );
+            if( ( count < local_best_count ) && 
+                    //!FIFOFindEdgeCount( taboo_list, i, j, count ) ){
+                    !FIFOFindEdge( taboo_list, i, j ) ){
+                local_best_count = count;
+                local_best_i = i;
+                local_best_j = j;
+            }
+            g[ i * gsize + j ] = 1 - g[ i * gsize + j ];
+        }
+
+        if( ( local_best_i > -1 ) && ( local_best_j > -1 ) && 
+                ( local_best_count <= *best_count ) ){
+        	g[ local_best_i * gsize + local_best_j ] =
+                1 - g[ local_best_i * gsize + local_best_j ];
+
+        	*best_count = local_best_count;
+        	//FIFOInsertEdgeCount( taboo_list, local_best_i, local_best_j, local_best_count);
+        	FIFOInsertEdge( taboo_list, local_best_i, local_best_j );
+
+        	//add_to_history( h, local_best_i, local_best_j );
+
+        	printf( "Flipped best bit: (%3d,%3d ), count %d, gsize: %d, new bit: %d\n",
+                local_best_i, local_best_j, local_best_count, gsize, 
+                g[ local_best_i * gsize + local_best_j ] );
+//        printf( "new value: %d\n", g[ local_best_i * gsize + local_best_j ] );
+//        PrintGraph( g, gsize );
+    	} else {
+        
+        /*struct HistoryStep *hs = get_last_step( h );
+        printf( "undo last step, wrong way. Last step: (%3d,%3d )\n",
+                hs->i, hs->j );
+        g[ hs->i * gsize + hs->j ] = 1 - g[ hs->i * gsize + hs->j ];
+        *best_count = CliqueCount( g, gsize );*/
+
+        srand( time( NULL ) );
+        int i = rand()%gsize;
+        int j = rand()%gsize;
+        g[ i * gsize + j ] = 1 - g[ i * gsize + j ];
+        *best_count = CliqueCount( g, gsize );
+    }
+
+    }
+}
+
+
 void tabooSearch( int *g, int gsize, int *best_count, void *taboo_list,
                     struct History *h ){
     int local_best_i = -1;
@@ -418,7 +474,7 @@ void find_ramsey(){
             printf( "start graph: \n" );
             PrintGraph( g, gsize );
             best_count = CliqueCount( g, gsize );
-
+           	fastTabooSearch( g, gsize, &best_count, taboo_list, &h );
             while ( best_count > 0 )
             {
                 tabooSearch( g, gsize, &best_count, taboo_list, &h );
