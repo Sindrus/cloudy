@@ -422,13 +422,9 @@ void find_ramsey(){
             while ( best_count > 0 )
             {
                 tabooSearch( g, gsize, &best_count, taboo_list, &h );
-                if( difftime( time( NULL ), last_sync ) > 10 ){
+                if( difftime( time( NULL ), last_sync ) > 60 ){
                     printf( "sync\n" );
                     last_sync = time( NULL );
-//                    for( int x = 0; x < gsize*gsize; x++ ){
-//                        printf( "%d",g[x] );
-//                    }
-//                    printf( "\n" );
                     save_graph( graphId, gsize, g, 0 );
                 }
             }

@@ -275,15 +275,11 @@ void save_graph( long graphId,
 
     int jsonlength = 159+( graphSize*graphSize );
     int inProgress = isSolution; 
-    char jsonStr[ jsonlength ];// = malloc( jsonlength );
+    char jsonStr[ jsonlength ];
     char *graphStr = malloc( graphSize*graphSize+1 );
     graph_to_string( graphStr, graph, graphSize );
     time_t t = time(NULL);
     struct tm tm = *gmtime(&t);
-
-//    printf( "jsonlength: %d\n", jsonlength );
-
-//    printf( "graphStr:\n%s\nend GraphStr\n", graphStr );
 
     sprintf( jsonStr, "{ \"graph\" : \"%s\", "
                       "\"in_progress\" : %d, "
@@ -297,7 +293,6 @@ void save_graph( long graphId,
                       tm.tm_min, tm.tm_sec );
     printf( "json: \n%s\n", jsonStr );
     submit( jsonStr );
-//    free( jsonStr );
     free( graphStr );
 }
 
