@@ -32,15 +32,15 @@ struct History{
 void initHistory( struct History *h ){
     h->size = 200;
     h->stepIndex = 0;
-    h->hs = malloc( h->size*2 );
+    h->hs = malloc( 200*sizeof( struct HistoryStep ) );
 }
 
 void add_to_history( struct History *h, int i, int j ){
     struct HistoryStep hs;
     hs.i = i;
     hs.j = j;
-    h->hs[ h->stepIndex ] = hs;
     h->stepIndex = ( h->stepIndex + 1 ) % h->size;
+    h->hs[ h->stepIndex ] = hs;
 }
 
 void clean_history( struct History *h ){
@@ -325,8 +325,8 @@ void tabooSearch( int *g, int gsize, int *best_count, void *taboo_list,
             g[ i * gsize + j ] = 1 - g[ i * gsize + j ];
             count = CliqueCountImp( g, gsize, local_best_count );
             if( ( count < local_best_count ) && 
-                    //!FIFOFindEdgeCount( taboo_list, i, j, count ) ){
-                    !FIFOFindEdge( taboo_list, i, j ) ){
+                    !FIFOFindEdgeCount( taboo_list, i, j, count ) ){
+                    //!FIFOFindEdge( taboo_list, i, j ) ){
                 local_best_count = count;
                 local_best_i = i;
                 local_best_j = j;
@@ -336,35 +336,43 @@ void tabooSearch( int *g, int gsize, int *best_count, void *taboo_list,
     }
 
     if( ( local_best_i > -1 ) && ( local_best_j > -1 ) && 
-                ( local_best_count <= *best_count ) ){
+                ( local_best_count < *best_count ) &&
+                !FIFOFindEdgeCount( taboo_list, local_best_i, local_best_j, local_best_count ) ){
         g[ local_best_i * gsize + local_best_j ] =
                 1 - g[ local_best_i * gsize + local_best_j ];
 
-        *best_count = local_best_count;
-        //FIFOInsertEdgeCount( taboo_list, local_best_i, local_best_j, local_best_count);
-        FIFOInsertEdge( taboo_list, local_best_i, local_best_j );
+        *best_count = CliqueCount( g, gsize );
+        FIFOInsertEdgeCount( taboo_list, local_best_i, local_best_j, *best_count);
+        //FIFOInsertEdge( taboo_list, local_best_i, local_best_j );
 
-        //add_to_history( h, local_best_i, local_best_j );
+//        add_to_history( h, local_best_i, local_best_j );
 
         printf( "Flipped best bit: (%3d,%3d ), count %d, gsize: %d, new bit: %d\n",
                 local_best_i, local_best_j, local_best_count, gsize, 
                 g[ local_best_i * gsize + local_best_j ] );
-//        printf( "new value: %d\n", g[ local_best_i * gsize + local_best_j ] );
-//        PrintGraph( g, gsize );
     }else{
         
-        /*struct HistoryStep *hs = get_last_step( h );
-        printf( "undo last step, wrong way. Last step: (%3d,%3d )\n",
-                hs->i, hs->j );
-        g[ hs->i * gsize + hs->j ] = 1 - g[ hs->i * gsize + hs->j ];
-        *best_count = CliqueCount( g, gsize );*/
-
-        srand( time( NULL ) );
+//        struct HistoryStep *hs = get_last_step( h );
+//        if( hs->i == 0 && hs->j == 0 ){
         int i = rand()%gsize;
-        int j = rand()%gsize;
+        int j = i + ( rand() % ( gsize - i ) );
+        int old_count = CliqueCount( g, gsize );
         g[ i * gsize + j ] = 1 - g[ i * gsize + j ];
         *best_count = CliqueCount( g, gsize );
+        FIFOInsertEdgeCount( taboo_list, i, j, *best_count);
+        FIFOInsertEdgeCount( taboo_list, i, j, old_count);
+        //FIFOInsertEdge( taboo_list, i, j );
+
+        printf( "Flipped rand bit: (%3d,%3d ), count %d, gsize: %d, new bit %d\n", 
+                i, j, *best_count, gsize, 
+                g[ i * gsize + j ] );
+//        }else{
+//            printf( "undo last step, wrong way. Last step: (%3d,%3d ), stepindex: %3d\n",
+//                    hs->i, hs->j, h->stepIndex );
+//            g[ hs->i * gsize + hs->j ] = 1 - g[ hs->i * gsize + hs->j ];
+//        }
     }
+//    PrintGraph( g, gsize );
 }
 
 
@@ -395,7 +403,6 @@ void find_ramsey(){
 		exit(1);
 	}
 
-    srand( time( NULL ) );
 	for (int i = 0; i < gsize; ++i)
 	{
         for (int j = 0; j < gsize; ++j)
@@ -465,6 +472,7 @@ void find_ramsey(){
 int
 main(int argc,char *argv[])
 {
+    srand( time( NULL ) );
     find_ramsey();
 	return (0);
 }
